@@ -88,7 +88,7 @@ const end = () => {
 const ready = () => {
   // DEBUG!!!!!!!
   if (isDev) {
-    webview.openDevTools();
+    // webview.openDevTools();
   }
 };
 
@@ -104,7 +104,7 @@ const musicStarted = () => {
   webview.executeJavaScript("__am.onPlayClick();");
   webview.executeJavaScript("__am.onNextClick();");
   webview.executeJavaScript("__am.onPreviousClick();");
-  webview.executeJavaScript("__am.getTitle();", false, title => {
+  webview.executeJavaScript("__am.getTitle();", false).then( title => {
     if (getTitle() !== `${constants.APP_NAME}\t${title}`) {
       ipcRenderer.send("appendTitle", title);
     } else {
@@ -113,7 +113,7 @@ const musicStarted = () => {
   });
   sendTrackAndArtist();
   setTimeout(() => {
-    webview.executeJavaScript("__am.getSongImage();", false, image => {
+    webview.executeJavaScript("__am.getSongImage();", false).then( image => {
       ipcRenderer.send("setTrayImage", image);
     });
   }, 2000);
@@ -123,8 +123,8 @@ const musicStarted = () => {
 
 const sendTrackAndArtist = () => {
   setTimeout(() => {
-    webview.executeJavaScript("__am.getMusicTitle();", false, track => {
-      webview.executeJavaScript("__am.getArtist();", false, artist => {
+    webview.executeJavaScript("__am.getMusicTitle();", false).then( track => {
+      webview.executeJavaScript("__am.getArtist();", false).then( artist => {
         ipcRenderer.send("setTrackAndArtist", [track, artist]);
       });
     });
@@ -171,8 +171,8 @@ const closeOutput = () => {
 
 const handleLyrics = () => {
   if (settings.get("lyrics")) {
-    webview.executeJavaScript("__am.hasSongText();", false, textAv => {
-      webview.executeJavaScript("__am.clearInterval();", false, () => {
+    webview.executeJavaScript("__am.hasSongText();", false).then( textAv => {
+      webview.executeJavaScript("__am.clearInterval();", false).then( d => {
         if (textAv) {
           showOutput();
           webview.executeJavaScript("__am.getCurrentSongText();");
@@ -205,7 +205,7 @@ ipcRenderer.on("playAndPause", () => {
  * @author Flo Dörr <flo@dörr.site>
  */
 ipcRenderer.on("nextTrack", () => {
-  webview.executeJavaScript("__am.nextTrack();", false, () => {
+  webview.executeJavaScript("__am.nextTrack();", false).then( d => {
     clearLyricsAndRestart();
   });
 });
@@ -216,7 +216,7 @@ ipcRenderer.on("nextTrack", () => {
  * @author Flo Dörr <flo@dörr.site>
  */
 ipcRenderer.on("previousTrack", () => {
-  webview.executeJavaScript("__am.previousTrack();", false, () => {
+  webview.executeJavaScript("__am.previousTrack();", false).then( d => {
     clearLyricsAndRestart();
   });
 });
@@ -224,7 +224,7 @@ ipcRenderer.on("previousTrack", () => {
 ipcRenderer.on("forceTrackAndArtist", () => {
   sendTrackAndArtist();
   setTimeout(() => {
-    webview.executeJavaScript("__am.getSongImage();", false, image => {
+    webview.executeJavaScript("__am.getSongImage();", false).then( image => {
       ipcRenderer.send("setTrayImage", image);
     });
   }, 2000);

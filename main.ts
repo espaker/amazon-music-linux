@@ -5,7 +5,8 @@ import {
   ipcMain,
   Menu,
   nativeImage,
-  Tray
+  Tray,
+  CommandLine
 } from "electron";
 import * as isDev from "electron-is-dev";
 import * as settings from "electron-settings";
@@ -15,6 +16,7 @@ import * as url from "url";
 import * as constants from "./const";
 import { Connection } from "./app-server";
 
+
 // Keep a global reference of the window object, if you don"t, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow: BrowserWindow;
@@ -23,6 +25,13 @@ let imageLocation: string;
 let settingsWindow: BrowserWindow;
 let connection: Connection;
 
+app.allowRendererProcessReuse = true;
+
+//@ Load the widevine library
+app.commandLine.appendSwitch('widevine-cdm-path', './libwidevinecdm.so');
+app.commandLine.appendSwitch('widevine-cdm-version', '4.10.1610.0');
+
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -30,14 +39,18 @@ app.on("ready", () => {
   createWindow();
 });
 
-const shouldQuit = app.makeSingleInstance((commandLine, workingDirectory) => {
+
+app.requestSingleInstanceLock()
+// const shouldQuit = app.makeSingleInstance((commandLine, workingDirectory) => {
+  const shouldQuit = app.on('second-instance',(evt, CommandLine,workingDirectory)=>{
   if (mainWindow) {
     mainWindow.show();
+    // mainWindow.webContents.openDevTools();    
   }
 });
 
 if (shouldQuit) {
-  app.quit();
+  // app.quit();
 }
 
 function createWindow() {
@@ -70,11 +83,19 @@ function createWindow() {
   }
   // Create the browser window.
   mainWindow = new BrowserWindow({
+
     height: 800,
     icon: path.join(__dirname, imageLocation),
     title: constants.APP_NAME,
-    webPreferences: { contextIsolation: false },
-    width: 1200
+    webPreferences: { 
+      contextIsolation: false, 
+      plugins: true, 
+      nodeIntegration: true, 
+      webSecurity: false, 
+      webviewTag: true,
+      additionalArguments : ["--widevine-cdm-path ./ --widevine-cdm-version 4.10.1610.0"]
+    },
+    width: 1200,
   });
   mainWindow.setMenu(null);
 
@@ -89,7 +110,7 @@ function createWindow() {
 
   // Open the DevTools.       DEBUG!!!!!!
   if (isDev) {
-    mainWindow.webContents.openDevTools();
+    // mainWindow.webContents.openDevTools();
   }
 
   // Emitted when the window is closed.
@@ -137,7 +158,7 @@ function createWindow() {
           })
         );
         if (isDev) {
-          settingsWindow.webContents.openDevTools();
+          // settingsWindow.webContents.openDevTools();
         }
       },
       label: "⚙️ Options"
