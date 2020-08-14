@@ -76,16 +76,15 @@ function createWindow() {
     console.log("init set settings app port.");
   }
   if (isDev) {
-    imageLocation = "assets/favicon.png";
+    imageLocation = path.join(__dirname, "assets/favicon.png");
   } else {
-    imageLocation =
-      __dirname.replace("/resources/app.asar", "") + "/resources/favicon.png";
+    imageLocation = __dirname.split('/').slice(0, -1).join('/') + "/favicon.png";
   }
   // Create the browser window.
   mainWindow = new BrowserWindow({
 
     height: 800,
-    icon: path.join(__dirname, imageLocation),
+    icon: imageLocation,
     title: constants.APP_NAME,
     webPreferences: { 
       contextIsolation: false, 
