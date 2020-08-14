@@ -1,7 +1,7 @@
 # amazon-music-linux
 A standalone app for Amazon Prime Music/Amazon Music Unlimited.
-# **Deprecated**:
-## Amazon Music is now using the DRM Widevine by Google which cannot be bypassed using electron on linux.
+# **Reborn**:
+## Amazon Music is now using the DRM Widevine by Google, change electro version to [castLabs Electron](https://github.com/castlabs/electron-releases]
 
 ## Installation
 
